@@ -27,12 +27,12 @@ ul {
     overflow: hidden;
     background-color: #4484CE;
     padding-top: 1%;
-    padding-bottom: 1%;
+    vertical-align: middle;
 }
 
 li a{
 	display: inline-block;
-    text-align: center;
+    text-align: center;	
     text-decoration: none;
     float: left;
     font-size: 2em;
@@ -46,9 +46,7 @@ li a:hover {
     color: black;
 }
 
-li .active {
-	background-color: white;
-}
+
 
 article {
 	padding-left: 5%;
@@ -58,12 +56,8 @@ article {
 body {
 	font-family: 'Roboto', sans-serif;
 	background-color: #EFEFEF;
-	max-width: 1080px;
-	text-align: center;
 }	
-
-#page-wrap {
-  text-align: left;
-  max-width: 1080px;
-  margin: 0 auto;
+li.active > a {
+	color: black;
+	background-color: white
 }
