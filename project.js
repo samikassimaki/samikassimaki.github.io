@@ -44,22 +44,15 @@ window.onload = function() {
      // first function to be called, when the game preloads I am loading the sprite sheet with all game tiles
     function onPreload() {
         game.load.spritesheet("tiles","tiles.png",40,40);
-    }
- 
-    // function to scale up the game to full screen
-    function goFullScreen(){
         game.scale.pageAlignHorizontally = true;
         game.scale.pageAlignVertically = true;
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        game.scale.setScreenSize(true);
     }
  
     // function to be called when the game has been created
     function onCreate() {
         // waiting for a key pressed
         game.input.keyboard.addCallbacks(this,onDown);
-        // going full screen with the function defined at line 32
-        
         // drawing the level
           drawLevel();
         // once the level has been created, we wait for the player to touch or click, then we call
