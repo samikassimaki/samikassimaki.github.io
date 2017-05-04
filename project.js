@@ -1,47 +1,65 @@
 window.onload = function() {
     
-    // game definition, 320x320
+    // Itse peli, 
     var game = new Phaser.Game(320,320,Phaser.CANVAS,"",{preload:onPreload, create:onCreate});                
     
-    // constants with game elements
-    var EMPTY = 0;
-     var WALL = 1;
+    // Vakiot, joissa pelin elementit
+    var TYHJA = 0;
+     var SEINA = 1;
      var SPOT = 2;
      var CRATE = 3;
      var PLAYER = 4;
-     // according to these values, the crate on the spot = CRATE+SPOT = 5 and the player on the spot = PLAYER+SPOT = 6
+     // Jos pisteen päällä on jotain muuta, niiden arvo on yhteen laskettu
     
-    // sokoban level, using hardcoded values rather than constants to save time, shame on me :) 
-    var level = [[1,1,1,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,0,0,1,1,1,1,1],[1,0,0,0,0,0,0,1],[1,1,4,2,1,3,0,1],[1,0,0,0,1,0,0,1],[1,0,0,0,1,1,1,1],[1,1,1,1,1,1,1,1]];
+
+    var allLevels = [
+                     [[1,1,1,1,1,1,1,1],
+                      [1,0,0,1,1,1,1,1],
+                      [1,0,0,1,1,1,1,1],
+                      [1,0,0,0,0,0,0,1],
+                      [1,1,4,2,1,3,0,1],
+                      [1,0,0,0,1,0,0,1],
+                      [1,0,0,0,1,1,1,1],
+                      [1,1,1,1,1,1,1,1]],
+
+                     [[1,1,1,1,1,1,1,1],
+                      [1,0,0,1,0,0,2,1],
+                      [1,0,3,1,0,0,0,1],
+                      [1,0,0,0,0,0,0,1],
+                      [1,1,4,2,1,3,0,1],
+                      [1,0,0,0,0,0,0,1],
+                      [1,0,0,0,1,1,1,1],
+                      [1,1,1,1,1,1,1,1]]
+                      ];
+
+
+    var levelNumber = prompt("Valitse taso välillä 1 - 2", "1");
+    if (levelNumber > allLevels.length) levelNumber = 2;
+    if (levelNumber < 1) levelNumber = 1;
+
+    // Valittu taso
+    var level = allLevels[levelNumber - 1];
     
-    // array which will keep track of undos
+    // Pitää kirjaa edellisistä siirroista
     var undoArray = [];
     
-    // array which will contain all crates
+    // Pitää kirjaa laatikoista
     var crates = [];
     
-    // size of a tile, in pixels
+    // Yhden laatikon koko pikseleissä
      var tileSize = 40;
      
-     // the player! Yeah!
+     // Pelaaja
      var player;
      
-     // is the player moving?
+     // Liikkuuko pelaaja
      var playerMoving = false;
-     
-     // variables used to detect and manage swipes
-     var startX;
-     var startY;
-     var endX;
-     var endY;
-     
-     // Variables used to create groups. The fist group is called fixedGroup, it will contain
-     // all non-moveable elements (everything but crates and player).
-     // Then we add movingGroup which will contain moveable elements (crates and player)
-     var fixedGroup;
-     var movingGroup;
+    
+     // Jaetaan liikkuviin ja liikkumattomiin
+     var liikkumaton;
+     var liikkuva;
  
-     // first function to be called, when the game preloads I am loading the sprite sheet with all game tiles
+     // Sprite sheetin lataaminen alussa, sekä pelin keskittäminen ja Full Screen
     function onPreload() {
         game.load.spritesheet("tiles","tiles.png",40,40);
         game.scale.pageAlignHorizontally = true;
@@ -49,26 +67,25 @@ window.onload = function() {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     }
  
-    // function to be called when the game has been created
+    // Peliä luotaessa kutsutaan
     function onCreate() {
-        // waiting for a key pressed
+        // Odottaa näppäimistön painallusta
         game.input.keyboard.addCallbacks(this,onDown);
-        // drawing the level
-          drawLevel();
-        // once the level has been created, we wait for the player to touch or click, then we call
-        // beginSwipe function
-        game.input.onDown.add(beginSwipe, this);        
+        // Piirtää tason
+        drawLevel();      
     }
-    
+
+    //???
     function drawLevel(){  
-          // empty crates array. Don't use crates = [] or it could mess with pointers
+          // Tyhjennetään laatikko Array
           crates.length = 0;      
-        // adding the two groups to the game
-          fixedGroup = game.add.group();
-          movingGroup = game.add.group();
-          // variable used for tile creation
+        // Lisää ryhmät peliin
+          liikkumaton = game.add.group();
+          liikkuva = game.add.group();
+          
+          // Tiilien luomista varten
           var tile
-          // looping trough all level rows
+          // Käydään jokainen läpi
         for(var i=0;i<level.length;i++){
             // creation of 2nd dimension of crates array
                crates[i]= [];
@@ -77,24 +94,24 @@ window.onload = function() {
                 // by default, there are no crates at current level position, so we set to null its
                 // array entry
                     crates[i][j] = null;
-                    // what do we have at row j, col i?
+                    // what do we have at row j, col i
                 switch(level[i][j]){
                          case PLAYER:
                          case PLAYER+SPOT:
-                            // player creation
+                            // Pelaajan luominen
                               player = game.add.sprite(40*j,40*i,"tiles");
-                              // assigning the player the proper frame
+                              // Pelaajan frame omaan frameen
                         player.frame = level[i][j];
-                              // creation of two custom attributes to store player x and y position
+                              // Pelaajan paikan määrittämiseen tarvittavat muuttujat
                               player.posX = j;
                               player.posY = i;
-                              // adding the player to movingGroup
-                              movingGroup.add(player);
+                              // Pelaaja lisätään liikkuvaan ryhmään
+                              liikkuva.add(player);
                               // since the player is on the floor, I am also creating the floor tile
                               tile = game.add.sprite(40*j,40*i,"tiles");
                           tile.frame = level[i][j]-PLAYER;
-                          // floor does not move so I am adding it to fixedGroup
-                              fixedGroup.add(tile);
+                          // Lattia ei liiku
+                              liikkumaton.add(tile);
                               break;
                          case CRATE:
                          case CRATE+SPOT:
@@ -103,52 +120,52 @@ window.onload = function() {
                               // assigning the crate the proper frame
                               crates[i][j].frame = level[i][j];
                               // adding the crate to movingGroup
-                              movingGroup.add(crates[i][j]);
+                              liikkuva.add(crates[i][j]);
                               // since the create is on the floor, I am also creating the floor tile
                               tile = game.add.sprite(40*j,40*i,"tiles");
                           tile.frame = level[i][j]-CRATE;
                           // floor does not move so I am adding it to fixedGroup
-                              fixedGroup.add(tile);                              
+                              liikkumaton.add(tile);                              
                               break;
                          default:
                             // creation of a simple tile
                               tile = game.add.sprite(40*j,40*i,"tiles");
                           tile.frame = level[i][j];
-                              fixedGroup.add(tile);
+                              liikkumaton.add(tile);
                     }
             }
         }
     }
     
-    // function to be executed once a key is down
+    // Näppäimistö-inputin vastaan ottamiseen
     function onDown(e){
-        // if the player is not moving...
+        // Jos pelaaja ei liiku
         if(!playerMoving){
             switch(e.keyCode){
-                // left
+                // vasen
                 case 37:
                     move(-1,0);
                     break;
-                // up
+                // ylös
                 case 38:
                     move(0,-1);
                     break;
-                // right
+                // oikea
                 case 39:
                     move(1,0);
                     break;
-                // down
+                // alas
                 case 40:
                     move(0,1);
                     break;
-                // undo
+                // edellinen
                 case 85:
-                    // if there's something to undo...
+                    // Tarkastetaan onko jotain poistettavaa
                     if(undoArray.length>0){
-                        // then undo! and remove the latest move from undoArray
+                        // Poistetaan viimeinen siirto edellisestä
                         var undoLevel = undoArray.pop();
-                        fixedGroup.destroy();
-                        movingGroup.destroy();
+                        liikkumaton.destroy();
+                        liikkuva.destroy();
                         level = [];
                         level = copyArray(undoLevel);
                         drawLevel();
@@ -158,135 +175,105 @@ window.onload = function() {
         }
     }
     
-    // when the player begins to swipe we only save mouse/finger coordinates, remove the touch/click
-    // input listener and add a new listener to be fired when the mouse/finger has been released,
-    // then we call endSwipe function
-    function beginSwipe(){
-        startX = game.input.worldX;
-        startY = game.input.worldY;
-        game.input.onDown.remove(beginSwipe);
-        game.input.onUp.add(endSwipe);
-    }
-    
-    // function to be called when the player releases the mouse/finger
-    function endSwipe(){
-        // saving mouse/finger coordinates
-        endX = game.input.worldX;
-        endY = game.input.worldY;
-        // determining x and y distance travelled by mouse/finger from the start
-        // of the swipe until the end
-        var distX = startX-endX;
-        var distY = startY-endY;
-        // in order to have an horizontal swipe, we need that x distance is at least twice the y distance
-        // and the amount of horizontal distance is at least 10 pixels
-        if(Math.abs(distX)>Math.abs(distY)*2 && Math.abs(distX)>10){
-            // moving left, calling move function with horizontal and vertical tiles to move as arguments
-            if(distX>0){
-                    move(-1,0);
-               }
-               // moving right, calling move function with horizontal and vertical tiles to move as arguments
-               else{
-                    move(1,0);
-               }
-        }
-        // in order to have a vertical swipe, we need that y distance is at least twice the x distance
-        // and the amount of vertical distance is at least 10 pixels
-        if(Math.abs(distY)>Math.abs(distX)*2 && Math.abs(distY)>10){
-            // moving up, calling move function with horizontal and vertical tiles to move as arguments
-            if(distY>0){
-                    move(0,-1);
-               }
-               // moving down, calling move function with horizontal and vertical tiles to move as arguments
-               else{
-                    move(0,1);
-               }
-        }   
-        // stop listening for the player to release finger/mouse, let's start listening for the player to click/touch
-        game.input.onDown.add(beginSwipe);
-        game.input.onUp.remove(endSwipe);
-    }
-     
-     // function to move the player
+     // Pelaajan  siirtäminen
      function move(deltaX,deltaY){
-        // if destination tile is walkable...
+
+        // Tarkastaa pystyykö tiilelle liikkumaan
           if(isWalkable(player.posX+deltaX,player.posY+deltaY)){
-            // push current situation in the undo array
+            // Nykyinen tilanne edellisten siirtojen listaan 
             undoArray.push(copyArray(level));
-               // then move the player and exit the function
+               // Siirrä pelaaja ja lopeta.
             movePlayer(deltaX,deltaY);
             return;
           }
-          // if the destination tile is a crate... 
+          // Jos laatikko on siirtymissuunnassa
           if(isCrate(player.posX+deltaX,player.posY+deltaY)){
-            // ...if  after the create there's a walkable tils...
+            // Jos laatikon suuntaan pääsee liikkumaan...
                if(isWalkable(player.posX+2*deltaX,player.posY+2*deltaY)){
-                // push current situation in the undo array
+                // Tilanne edellisten listaan
                 undoArray.push(copyArray(level));
-                // move the crate
+                // Siirrä laatikkoa
                     moveCrate(deltaX,deltaY);             
-                    // move the player  
+                    // Siirrä pelaajaa 
                 movePlayer(deltaX,deltaY);
                }
           }
+
      }
      
-     // a tile is walkable when it's an empty tile or a spot tile
+     // Onko tiili käveltäbä, eli tyhjä tai maalipiste
      function isWalkable(posX,posY){
-        return level[posY][posX] == EMPTY || level[posY][posX] == SPOT;
+        return level[posY][posX] == TYHJA || level[posY][posX] == SPOT;
     }
     
-    // a tile is a crate when it's a... guess what? crate, or it's a crate on its spot
+    // Laatikko on laatikko tai laatikko on maalipisteellä
     function isCrate(posX,posY){
         return level[posY][posX] == CRATE || level[posY][posX] == CRATE+SPOT;
     }
     
-    // function to move the player
+    // Pelaajan siirtämistä varten
     function movePlayer(deltaX,deltaY){
-        // now the player is moving
+        // Pelaaja liikkuu
         playerMoving = true;
-        // moving with a 1/10s tween
+        // Liikkumisnopeus
         var playerTween =game.add.tween(player);
         playerTween.to({
             x:player.x+deltaX*tileSize,
             y:player.y + deltaY*tileSize
         }, 100, Phaser.Easing.Linear.None,true);
-        // setting a tween callback 
+        // Kun liikkuminen on loppu
         playerTween.onComplete.add(function(){
-            // now the player is not moving anymore
+            // Liike loppuu
             playerMoving = false;
+            if(levelSolved()){
+                  if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
+                  else window.location.reload(); 
+                };
         }, this);
-        // updating player old position in level array   
+        // Poistaa pelaajan edellisen paikan peli Arrayssa
           level[player.posY][player.posX]-=PLAYER;  
-          // updating player custom posX and posY attributes
+          // Päivittää uuden koordinaatin 
           player.posX+=deltaX;
           player.posY+=deltaY;
-          // updating player new position in level array 
+          // Lisää pelaajan peli Arrayhyn
           level[player.posY][player.posX]+=PLAYER;  
-        // changing player frame accordingly  
+        // siirtää pelaaja framen paikkaa
           player.frame = level[player.posY][player.posX];
+
     }
     
-    // function to move the crate
+    // Laatikon siirto funktio
     function moveCrate(deltaX,deltaY){
-        // moving with a 1/10s tween
+        // Liikkumisaika
         var crateTween =game.add.tween(crates[player.posY+deltaY][player.posX+deltaX]);
         crateTween.to({
             x:crates[player.posY+deltaY][player.posX+deltaX].x+deltaX*tileSize,
             y:crates[player.posY+deltaY][player.posX+deltaX].y+deltaY*tileSize,
         }, 100, Phaser.Easing.Linear.None,true);
-        // updating crates array   
+        // Crate arrayn päivittäminen
           crates[player.posY+2*deltaY][player.posX+2*deltaX]=crates[player.posY+deltaY][player.posX+deltaX];
           crates[player.posY+deltaY][player.posX+deltaX]=null;
-          // updating crate old position in level array  
+          // Vanhan position päivittäminen
           level[player.posY+deltaY][player.posX+deltaX]-=CRATE;
-          // updating crate new position in level array  
+          // Uuden position päivittäminen
         level[player.posY+2*deltaY][player.posX+2*deltaX]+=CRATE;
-        // changing crate frame accordingly  
+        // Laatikko framen siirtäminen
         crates[player.posY+2*deltaY][player.posX+2*deltaX].frame=level[player.posY+2*deltaY][player.posX+2*deltaX];
     }
     
-    // need a recursive function to copy arrays, no need to reinvent the wheel so I got it here
-    // http://stackoverflow.com/questions/10941695/copy-an-arbitrary-n-dimensional-array-in-javascript 
+    
+    function levelSolved(){
+        for(var i = 0; i < 8; i++){
+            for(var j = 0; j < 8; j++){
+                if(level[i][j] == CRATE){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // Arrayn kopioiminen
     function copyArray(a){
         var newArray = a.slice(0);
             for(var i = newArray.length; i>0; i--){
