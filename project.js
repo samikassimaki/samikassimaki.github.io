@@ -59,7 +59,7 @@ window.onload = function() {
         // waiting for a key pressed
         game.input.keyboard.addCallbacks(this,onDown);
         // going full screen with the function defined at line 32
-        goFullScreen();
+        
         // drawing the level
           drawLevel();
         // once the level has been created, we wait for the player to touch or click, then we call
