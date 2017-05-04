@@ -6,8 +6,8 @@ window.onload = function() {
     // Vakiot, joissa pelin elementit
     var TYHJA = 0;
      var SEINA = 1;
-     var SPOT = 2;
-     var CRATE = 3;
+     var MAALI = 2;
+     var LAATIKKO = 3;
      var PLAYER = 4;
      // Jos pisteen päällä on jotain muuta, niiden arvo on yhteen laskettu
     
@@ -44,7 +44,7 @@ window.onload = function() {
     var undoArray = [];
     
     // Pitää kirjaa laatikoista
-    var crates = [];
+    var laatikot = [];
     
     // Yhden laatikon koko pikseleissä
      var tileSize = 40;
@@ -78,7 +78,7 @@ window.onload = function() {
     //???
     function drawLevel(){  
           // Tyhjennetään laatikko Array
-          crates.length = 0;      
+          laatikot.length = 0;      
         // Lisää ryhmät peliin
           liikkumaton = game.add.group();
           liikkuva = game.add.group();
@@ -87,17 +87,17 @@ window.onload = function() {
           var tile
           // Käydään jokainen läpi
         for(var i=0;i<level.length;i++){
-            // creation of 2nd dimension of crates array
-               crates[i]= [];
+            // creation of 2nd dimension of laatikot array
+               laatikot[i]= [];
                // looping through all level columns
             for(var j=0;j<level[i].length;j++){
-                // by default, there are no crates at current level position, so we set to null its
+                // by default, there are no laatikot at current level position, so we set to null its
                 // array entry
-                    crates[i][j] = null;
+                    laatikot[i][j] = null;
                     // what do we have at row j, col i
                 switch(level[i][j]){
                          case PLAYER:
-                         case PLAYER+SPOT:
+                         case PLAYER+MAALI:
                             // Pelaajan luominen
                               player = game.add.sprite(40*j,40*i,"tiles");
                               // Pelaajan frame omaan frameen
@@ -113,17 +113,17 @@ window.onload = function() {
                           // Lattia ei liiku
                               liikkumaton.add(tile);
                               break;
-                         case CRATE:
-                         case CRATE+SPOT:
-                            // crate creation, both as a sprite and as a crates array item
-                              crates[i][j] = game.add.sprite(40*j,40*i,"tiles");
+                         case LAATIKKO:
+                         case LAATIKKO+MAALI:
+                            // crate creation, both as a sprite and as a laatikot array item
+                              laatikot[i][j] = game.add.sprite(40*j,40*i,"tiles");
                               // assigning the crate the proper frame
-                              crates[i][j].frame = level[i][j];
+                              laatikot[i][j].frame = level[i][j];
                               // adding the crate to movingGroup
-                              liikkuva.add(crates[i][j]);
+                              liikkuva.add(laatikot[i][j]);
                               // since the create is on the floor, I am also creating the floor tile
                               tile = game.add.sprite(40*j,40*i,"tiles");
-                          tile.frame = level[i][j]-CRATE;
+                          tile.frame = level[i][j]-LAATIKKO;
                           // floor does not move so I am adding it to fixedGroup
                               liikkumaton.add(tile);                              
                               break;
@@ -203,12 +203,12 @@ window.onload = function() {
      
      // Onko tiili käveltäbä, eli tyhjä tai maalipiste
      function isWalkable(posX,posY){
-        return level[posY][posX] == TYHJA || level[posY][posX] == SPOT;
+        return level[posY][posX] == TYHJA || level[posY][posX] == MAALI;
     }
     
     // Laatikko on laatikko tai laatikko on maalipisteellä
     function isCrate(posX,posY){
-        return level[posY][posX] == CRATE || level[posY][posX] == CRATE+SPOT;
+        return level[posY][posX] == LAATIKKO || level[posY][posX] == LAATIKKO+MAALI;
     }
     
     // Pelaajan siirtämistä varten
@@ -245,27 +245,27 @@ window.onload = function() {
     // Laatikon siirto funktio
     function moveCrate(deltaX,deltaY){
         // Liikkumisaika
-        var crateTween =game.add.tween(crates[player.posY+deltaY][player.posX+deltaX]);
+        var crateTween =game.add.tween(laatikot[player.posY+deltaY][player.posX+deltaX]);
         crateTween.to({
-            x:crates[player.posY+deltaY][player.posX+deltaX].x+deltaX*tileSize,
-            y:crates[player.posY+deltaY][player.posX+deltaX].y+deltaY*tileSize,
+            x:laatikot[player.posY+deltaY][player.posX+deltaX].x+deltaX*tileSize,
+            y:laatikot[player.posY+deltaY][player.posX+deltaX].y+deltaY*tileSize,
         }, 100, Phaser.Easing.Linear.None,true);
         // Crate arrayn päivittäminen
-          crates[player.posY+2*deltaY][player.posX+2*deltaX]=crates[player.posY+deltaY][player.posX+deltaX];
-          crates[player.posY+deltaY][player.posX+deltaX]=null;
+          laatikot[player.posY+2*deltaY][player.posX+2*deltaX]=laatikot[player.posY+deltaY][player.posX+deltaX];
+          laatikot[player.posY+deltaY][player.posX+deltaX]=null;
           // Vanhan position päivittäminen
-          level[player.posY+deltaY][player.posX+deltaX]-=CRATE;
+          level[player.posY+deltaY][player.posX+deltaX]-=LAATIKKO;
           // Uuden position päivittäminen
-        level[player.posY+2*deltaY][player.posX+2*deltaX]+=CRATE;
+        level[player.posY+2*deltaY][player.posX+2*deltaX]+=LAATIKKO;
         // Laatikko framen siirtäminen
-        crates[player.posY+2*deltaY][player.posX+2*deltaX].frame=level[player.posY+2*deltaY][player.posX+2*deltaX];
+        laatikot[player.posY+2*deltaY][player.posX+2*deltaX].frame=level[player.posY+2*deltaY][player.posX+2*deltaX];
     }
     
     
     function levelSolved(){
         for(var i = 0; i < 8; i++){
             for(var j = 0; j < 8; j++){
-                if(level[i][j] == CRATE){
+                if(level[i][j] == LAATIKKO){
                     return false;
                 }
             }
