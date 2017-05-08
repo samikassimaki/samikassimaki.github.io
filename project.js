@@ -29,12 +29,37 @@ window.onload = function() {
                       [1,1,4,2,1,3,0,1],
                       [1,0,0,0,0,0,0,1],
                       [1,0,0,0,1,1,1,1],
+                      [1,1,1,1,1,1,1,1]],
+					  
+					 [[1,1,1,1,1,1,1,1],
+                      [1,2,1,0,0,0,0,1],
+                      [1,0,1,0,0,3,0,1],
+                      [1,0,0,0,1,1,1,1],
+                      [1,1,3,0,0,0,2,1],
+                      [1,0,0,1,1,1,0,1],
+                      [1,2,0,0,4,3,0,1],
+                      [1,1,1,1,1,1,1,1]],
+					  
+					  [[1,1,1,1,1,1,1,1],
+                      [1,1,1,1,0,0,0,1],
+                      [1,0,0,0,0,0,0,1],
+                      [1,0,0,2,1,3,1,1],
+                      [1,1,3,1,2,0,0,1],
+                      [1,4,0,0,0,0,0,1],
+                      [1,0,0,0,0,0,1,1],
                       [1,1,1,1,1,1,1,1]]
-                      ];
+					  
+					 
+                     
+
+					 ];
 
 
-    var levelNumber = prompt("Valitse taso välillä 1 - 2", "1");
-    if (levelNumber > allLevels.length) levelNumber = 2;
+    var levelNumber = prompt("Valitse taso välillä 1 - 4", "1");
+    
+	if (levelNumber > allLevels.length) levelNumber = 4;
+	if (levelNumber == 3) levelNumber = 3;
+	if (levelNumber == 2) levelNumber = 2;
     if (levelNumber < 1) levelNumber = 1;
 
     // Valittu taso
