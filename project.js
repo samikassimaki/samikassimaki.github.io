@@ -1,7 +1,8 @@
 window.onload = function() {
     
     // Itse peli
-    var peli = new Phaser.Game(320,320,Phaser.CANVAS,"",{preload:ladatessa, create:luotaessa});                
+    var peli = new Phaser.Game(320,320,Phaser.CANVAS,"",{preload:ladatessa, create:luotaessa});   
+
     
     // Vakiot, joissa pelin elementit
      var TYHJA = 0;
@@ -76,6 +77,7 @@ window.onload = function() {
         peli.scale.pageAlignHorizontally = true;
         peli.scale.pageAlignVertically = true;
         peli.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        var voitto = new Audio('voitto.mp3')
     }
  
     // Peliä luotaessa kutsutaan
@@ -83,7 +85,9 @@ window.onload = function() {
         // Odottaa näppäimistön painallusta
         peli.input.keyboard.addCallbacks(this,onDown);
         // Piirtää tason
-        piirraTaso();      
+        piirraTaso();    
+        
+
     }
 
     function piirraTaso(){  
@@ -235,8 +239,9 @@ window.onload = function() {
             // Liike loppuu
             pelaajaLiikkuu = false;
             if(tasoValmis()){
-                  if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
-                  else window.location.reload(); 
+                 voitto.play();
+                 alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!"));
+                 window.location.reload(); 
                 };
         }, this);
         // Poistaa pelaajan edellisen paikan peli Arrayssa

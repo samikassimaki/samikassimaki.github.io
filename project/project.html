@@ -1,0 +1,29 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset='UTF-8'>
+	<title>Tuulivoimaa puhtaasti luonnosta!</title>
+	
+	
+</head>
+<body>
+	<audio id="voitto" src="voitto.mp3" preload="auto"></audio>
+	<script>
+    var taustamusiikki = new Audio('taustamusiikki.mp3')
+    	taustamusiikki.play()
+        taustamusiikki.addEventListener('timeupdate', function(){
+          var buffer = .44
+          if(this.currentTime > this.duration - buffer){
+              this.currentTime = 0
+              this.play()
+          }
+        }, false);    
+	</script>
+	<script type="text/javascript" src="phaser.js"></script>
+	<script type="text/javascript" src="project.js"></script>
+</body>
+
+</html>
