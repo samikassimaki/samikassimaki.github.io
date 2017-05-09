@@ -1,27 +1,18 @@
 window.onload = function() {
     
-    // Itse peli, 
-    var game = new Phaser.Game(320,320,Phaser.CANVAS,"",{preload:onPreload, create:onCreate});                
+    // Itse peli
+    var peli = new Phaser.Game(320,320,Phaser.CANVAS,"",{preload:ladatessa, create:luotaessa});                
     
     // Vakiot, joissa pelin elementit
-    var TYHJA = 0;
+     var TYHJA = 0;
      var SEINA = 1;
      var MAALI = 2;
      var LAATIKKO = 3;
-     var PLAYER = 4;
+     var PELAAJA = 4;
      // Jos pisteen päällä on jotain muuta, niiden arvo on yhteen laskettu
     
 
-    var allLevels = [
-                     [[1,1,1,1,1,1,1,1],
-                      [1,0,0,1,1,1,1,1],
-                      [1,0,0,1,1,1,1,1],
-                      [1,0,0,0,0,0,0,1],
-                      [1,1,4,2,1,3,0,1],
-                      [1,0,0,0,1,0,0,1],
-                      [1,0,0,0,1,1,1,1],
-                      [1,1,1,1,1,1,1,1]],
-
+    var kaikkiTasot = [
                      [[1,1,1,1,1,1,1,1],
                       [1,0,0,1,0,0,2,1],
                       [1,0,3,1,0,0,0,1],
@@ -31,7 +22,7 @@ window.onload = function() {
                       [1,0,0,0,1,1,1,1],
                       [1,1,1,1,1,1,1,1]],
 					  
-					 [[1,1,1,1,1,1,1,1],
+					           [[1,1,1,1,1,1,1,1],
                       [1,2,1,0,0,0,0,1],
                       [1,0,1,0,0,3,0,1],
                       [1,0,0,0,1,1,1,1],
@@ -40,7 +31,7 @@ window.onload = function() {
                       [1,2,0,0,4,3,0,1],
                       [1,1,1,1,1,1,1,1]],
 					  
-					  [[1,1,1,1,1,1,1,1],
+				          	 [[1,1,1,1,1,1,1,1],
                       [1,1,1,1,0,0,0,1],
                       [1,0,0,0,0,0,0,1],
                       [1,0,0,2,1,3,1,1],
@@ -48,115 +39,108 @@ window.onload = function() {
                       [1,4,0,0,0,0,0,1],
                       [1,0,0,0,0,0,1,1],
                       [1,1,1,1,1,1,1,1]]
-					  
-					 
-                     
-
 					 ];
 
 
-    var levelNumber = prompt("Valitse taso välillä 1 - 4", "1");
+    var tasot = prompt("Rakenna oma tuulipuistosi! Valitse taso 1 - 3", "1");
     
-	if (levelNumber > allLevels.length) levelNumber = 4;
-	if (levelNumber == 3) levelNumber = 3;
-	if (levelNumber == 2) levelNumber = 2;
-    if (levelNumber < 1) levelNumber = 1;
+	  if (tasot > kaikkiTasot.length) tasot = 3;
+	  if (tasot == 2) tasot = 2;
+    if (tasot < 1) tasot = 1;
 
     // Valittu taso
-    var level = allLevels[levelNumber - 1];
+    var taso = kaikkiTasot[tasot - 1];
     
     // Pitää kirjaa edellisistä siirroista
-    var undoArray = [];
+    var edellisetSiirrot = [];
     
     // Pitää kirjaa laatikoista
     var laatikot = [];
     
     // Yhden laatikon koko pikseleissä
-     var tileSize = 40;
+     var tiilenKoko = 40;
      
      // Pelaaja
-     var player;
+     var pelaaja;
      
      // Liikkuuko pelaaja
-     var playerMoving = false;
+     var pelaajaLiikkuu = false;
     
      // Jaetaan liikkuviin ja liikkumattomiin
      var liikkumaton;
      var liikkuva;
  
      // Sprite sheetin lataaminen alussa, sekä pelin keskittäminen ja Full Screen
-    function onPreload() {
-        game.load.spritesheet("tiles","tiles.png",40,40);
-        game.scale.pageAlignHorizontally = true;
-        game.scale.pageAlignVertically = true;
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    function ladatessa() {
+        peli.load.spritesheet("tiilet","tiles.png",40,40);
+        peli.scale.pageAlignHorizontally = true;
+        peli.scale.pageAlignVertically = true;
+        peli.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     }
  
     // Peliä luotaessa kutsutaan
-    function onCreate() {
+    function luotaessa() {
         // Odottaa näppäimistön painallusta
-        game.input.keyboard.addCallbacks(this,onDown);
+        peli.input.keyboard.addCallbacks(this,onDown);
         // Piirtää tason
-        drawLevel();      
+        piirraTaso();      
     }
 
-    //???
-    function drawLevel(){  
+    function piirraTaso(){  
           // Tyhjennetään laatikko Array
           laatikot.length = 0;      
         // Lisää ryhmät peliin
-          liikkumaton = game.add.group();
-          liikkuva = game.add.group();
+          liikkumaton = peli.add.group();
+          liikkuva = peli.add.group();
           
           // Tiilien luomista varten
-          var tile
+          var tiili
           // Käydään jokainen läpi
-        for(var i=0;i<level.length;i++){
-            // creation of 2nd dimension of laatikot array
+        for(var i=0;i<taso.length;i++){
+            // Laatikoiden paikat
                laatikot[i]= [];
-               // looping through all level columns
-            for(var j=0;j<level[i].length;j++){
-                // by default, there are no laatikot at current level position, so we set to null its
-                // array entry
-                    laatikot[i][j] = null;
-                    // what do we have at row j, col i
-                switch(level[i][j]){
-                         case PLAYER:
-                         case PLAYER+MAALI:
-                            // Pelaajan luominen
-                              player = game.add.sprite(40*j,40*i,"tiles");
-                              // Pelaajan frame omaan frameen
-                        player.frame = level[i][j];
+               // tason kaikki 
+            for(var j=0;j<taso[i].length;j++){
+                // vakiona paikalla ei ole laatikoita, joten asetetaan null
+                laatikot[i][j] = null;
+                // mitä sijaitsee tasossa, piirretään kuvioita
+                switch(taso[i][j]){
+                         case PELAAJA:
+                         case PELAAJA+MAALI:
+                              // Pelaajan luominen
+                              pelaaja = peli.add.sprite(40*j,40*i,"tiilet");
+                              // Pelaajan frame omaan paikkaansa tasossa
+                              pelaaja.frame = taso[i][j];
                               // Pelaajan paikan määrittämiseen tarvittavat muuttujat
-                              player.posX = j;
-                              player.posY = i;
+                              pelaaja.posX = j;
+                              pelaaja.posY = i;
                               // Pelaaja lisätään liikkuvaan ryhmään
-                              liikkuva.add(player);
-                              // since the player is on the floor, I am also creating the floor tile
-                              tile = game.add.sprite(40*j,40*i,"tiles");
-                          tile.frame = level[i][j]-PLAYER;
-                          // Lattia ei liiku
-                              liikkumaton.add(tile);
+                              liikkuva.add(pelaaja);
+                              // Koska pelaaja on lattialla, lisätään kohtaan myös lattia tiili
+                              tiili = peli.add.sprite(40*j,40*i,"tiilet");
+                              tiili.frame = taso[i][j]-pelaaja;
+                              // Lattia ei liiku
+                              liikkumaton.add(tiili);
                               break;
                          case LAATIKKO:
                          case LAATIKKO+MAALI:
-                            // crate creation, both as a sprite and as a laatikot array item
-                              laatikot[i][j] = game.add.sprite(40*j,40*i,"tiles");
-                              // assigning the crate the proper frame
-                              laatikot[i][j].frame = level[i][j];
-                              // adding the crate to movingGroup
+                              // luodaan laatikko sekä laatikot arrayhyn, että kuvaan
+                              laatikot[i][j] = peli.add.sprite(40*j,40*i,"tiilet");
+                              // sijoitetaan laatikko paikalleen
+                              laatikot[i][j].frame = taso[i][j];
+                              // lisätään laatikko liikkuvien ryhmään
                               liikkuva.add(laatikot[i][j]);
-                              // since the create is on the floor, I am also creating the floor tile
-                              tile = game.add.sprite(40*j,40*i,"tiles");
-                          tile.frame = level[i][j]-LAATIKKO;
-                          // floor does not move so I am adding it to fixedGroup
-                              liikkumaton.add(tile);                              
+                              // laatikko on lattialla, joten paikalle luodaan myös lattia
+                              tiili = peli.add.sprite(40*j,40*i,"tiilet");
+                              tiili.frame = taso[i][j]-LAATIKKO;
+                              // lattia ei liiku
+                              liikkumaton.add(tiili);                              
                               break;
                          default:
-                            // creation of a simple tile
-                              tile = game.add.sprite(40*j,40*i,"tiles");
-                          tile.frame = level[i][j];
-                              liikkumaton.add(tile);
+                              // Liikkumattoman seinän luonti
+                              tiili = peli.add.sprite(40*j,40*i,"tiilet");
+                              tiili.frame = taso[i][j];
+                              liikkumaton.add(tiili);
                     }
             }
         }
@@ -165,35 +149,35 @@ window.onload = function() {
     // Näppäimistö-inputin vastaan ottamiseen
     function onDown(e){
         // Jos pelaaja ei liiku
-        if(!playerMoving){
+        if(!pelaajaLiikkuu){
             switch(e.keyCode){
                 // vasen
                 case 37:
-                    move(-1,0);
+                    liiku(-1,0);
                     break;
                 // ylös
                 case 38:
-                    move(0,-1);
+                    liiku(0,-1);
                     break;
                 // oikea
                 case 39:
-                    move(1,0);
+                    liiku(1,0);
                     break;
                 // alas
                 case 40:
-                    move(0,1);
+                    liiku(0,1);
                     break;
                 // edellinen
                 case 85:
                     // Tarkastetaan onko jotain poistettavaa
-                    if(undoArray.length>0){
+                    if(edellisetSiirrot.length>0){
                         // Poistetaan viimeinen siirto edellisestä
-                        var undoLevel = undoArray.pop();
+                        var edellinen = edellisetSiirrot.pop();
                         liikkumaton.destroy();
                         liikkuva.destroy();
-                        level = [];
-                        level = copyArray(undoLevel);
-                        drawLevel();
+                        taso = [];
+                        taso = kopio(edellinen);
+                        piirraTaso();
                     }
                     break;
             }
@@ -201,96 +185,96 @@ window.onload = function() {
     }
     
      // Pelaajan  siirtäminen
-     function move(deltaX,deltaY){
+     function liiku(deltaX,deltaY){
 
         // Tarkastaa pystyykö tiilelle liikkumaan
-          if(isWalkable(player.posX+deltaX,player.posY+deltaY)){
+          if(kaveltava(pelaaja.posX+deltaX,pelaaja.posY+deltaY)){
             // Nykyinen tilanne edellisten siirtojen listaan 
-            undoArray.push(copyArray(level));
-               // Siirrä pelaaja ja lopeta.
-            movePlayer(deltaX,deltaY);
+            edellisetSiirrot.push(kopio(taso));
+            // Siirrä pelaaja ja lopeta.
+            liikutaPelaajaa(deltaX,deltaY);
             return;
           }
           // Jos laatikko on siirtymissuunnassa
-          if(isCrate(player.posX+deltaX,player.posY+deltaY)){
+          if(onkoLaatikko(pelaaja.posX+deltaX,pelaaja.posY+deltaY)){
             // Jos laatikon suuntaan pääsee liikkumaan...
-               if(isWalkable(player.posX+2*deltaX,player.posY+2*deltaY)){
+             if(kaveltava(pelaaja.posX+2*deltaX,pelaaja.posY+2*deltaY)){
                 // Tilanne edellisten listaan
-                undoArray.push(copyArray(level));
+                edellisetSiirrot.push(kopio(taso));
                 // Siirrä laatikkoa
-                    moveCrate(deltaX,deltaY);             
-                    // Siirrä pelaajaa 
-                movePlayer(deltaX,deltaY);
-               }
+                liikutaLaatikko(deltaX,deltaY);             
+                // Siirrä pelaajaa 
+                liikutaPelaajaa(deltaX,deltaY);
+             }
           }
 
      }
      
-     // Onko tiili käveltäbä, eli tyhjä tai maalipiste
-     function isWalkable(posX,posY){
-        return level[posY][posX] == TYHJA || level[posY][posX] == MAALI;
+     // Onko tiili käveltävä, eli tyhjä tai maalipiste
+     function kaveltava(posX,posY){
+        return taso[posY][posX] == TYHJA || taso[posY][posX] == MAALI;
     }
     
     // Laatikko on laatikko tai laatikko on maalipisteellä
-    function isCrate(posX,posY){
-        return level[posY][posX] == LAATIKKO || level[posY][posX] == LAATIKKO+MAALI;
+    function onkoLaatikko(posX,posY){
+        return taso[posY][posX] == LAATIKKO || taso[posY][posX] == LAATIKKO+MAALI;
     }
     
     // Pelaajan siirtämistä varten
-    function movePlayer(deltaX,deltaY){
+    function liikutaPelaajaa(deltaX,deltaY){
         // Pelaaja liikkuu
-        playerMoving = true;
+        pelaajaLiikkuu = true;
         // Liikkumisnopeus
-        var playerTween =game.add.tween(player);
-        playerTween.to({
-            x:player.x+deltaX*tileSize,
-            y:player.y + deltaY*tileSize
+        var pelaajaTween =peli.add.tween(pelaaja);
+        pelaajaTween.to({
+            x:pelaaja.x+deltaX*tiilenKoko,
+            y:pelaaja.y + deltaY*tiilenKoko
         }, 100, Phaser.Easing.Linear.None,true);
         // Kun liikkuminen on loppu
-        playerTween.onComplete.add(function(){
+        pelaajaTween.onComplete.add(function(){
             // Liike loppuu
-            playerMoving = false;
-            if(levelSolved()){
+            pelaajaLiikkuu = false;
+            if(tasoValmis()){
                   if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
                   else window.location.reload(); 
                 };
         }, this);
         // Poistaa pelaajan edellisen paikan peli Arrayssa
-          level[player.posY][player.posX]-=PLAYER;  
+          taso[pelaaja.posY][pelaaja.posX]-=PELAAJA;  
           // Päivittää uuden koordinaatin 
-          player.posX+=deltaX;
-          player.posY+=deltaY;
+          pelaaja.posX+=deltaX;
+          pelaaja.posY+=deltaY;
           // Lisää pelaajan peli Arrayhyn
-          level[player.posY][player.posX]+=PLAYER;  
+          taso[pelaaja.posY][pelaaja.posX]+=PELAAJA;  
         // siirtää pelaaja framen paikkaa
-          player.frame = level[player.posY][player.posX];
+          pelaaja.frame = taso[pelaaja.posY][pelaaja.posX];
 
     }
     
     // Laatikon siirto funktio
-    function moveCrate(deltaX,deltaY){
+    function liikutaLaatikko(deltaX,deltaY){
         // Liikkumisaika
-        var crateTween =game.add.tween(laatikot[player.posY+deltaY][player.posX+deltaX]);
+        var crateTween =peli.add.tween(laatikot[pelaaja.posY+deltaY][pelaaja.posX+deltaX]);
         crateTween.to({
-            x:laatikot[player.posY+deltaY][player.posX+deltaX].x+deltaX*tileSize,
-            y:laatikot[player.posY+deltaY][player.posX+deltaX].y+deltaY*tileSize,
+            x:laatikot[pelaaja.posY+deltaY][pelaaja.posX+deltaX].x+deltaX*tiilenKoko,
+            y:laatikot[pelaaja.posY+deltaY][pelaaja.posX+deltaX].y+deltaY*tiilenKoko,
         }, 100, Phaser.Easing.Linear.None,true);
         // Crate arrayn päivittäminen
-          laatikot[player.posY+2*deltaY][player.posX+2*deltaX]=laatikot[player.posY+deltaY][player.posX+deltaX];
-          laatikot[player.posY+deltaY][player.posX+deltaX]=null;
+          laatikot[pelaaja.posY+2*deltaY][pelaaja.posX+2*deltaX]=laatikot[pelaaja.posY+deltaY][pelaaja.posX+deltaX];
+          laatikot[pelaaja.posY+deltaY][pelaaja.posX+deltaX]=null;
           // Vanhan position päivittäminen
-          level[player.posY+deltaY][player.posX+deltaX]-=LAATIKKO;
+          taso[pelaaja.posY+deltaY][pelaaja.posX+deltaX]-=LAATIKKO;
           // Uuden position päivittäminen
-        level[player.posY+2*deltaY][player.posX+2*deltaX]+=LAATIKKO;
+        taso[pelaaja.posY+2*deltaY][pelaaja.posX+2*deltaX]+=LAATIKKO;
         // Laatikko framen siirtäminen
-        laatikot[player.posY+2*deltaY][player.posX+2*deltaX].frame=level[player.posY+2*deltaY][player.posX+2*deltaX];
+        laatikot[pelaaja.posY+2*deltaY][pelaaja.posX+2*deltaX].frame=taso[pelaaja.posY+2*deltaY][pelaaja.posX+2*deltaX];
     }
     
     
-    function levelSolved(){
+    function tasoValmis(){
         for(var i = 0; i < 8; i++){
             for(var j = 0; j < 8; j++){
-                if(level[i][j] == LAATIKKO){
+                if(taso[i][j] == LAATIKKO){
                     return false;
                 }
             }
@@ -299,11 +283,11 @@ window.onload = function() {
     }
 
     // Arrayn kopioiminen
-    function copyArray(a){
+    function kopio(a){
         var newArray = a.slice(0);
             for(var i = newArray.length; i>0; i--){
             if(newArray[i] instanceof Array){
-                newArray[i] = copyArray(newArray[i]);   
+                newArray[i] = kopio(newArray[i]);   
             }
         }
         return newArray;
