@@ -33,7 +33,6 @@ var player = {
 // Koordinaatit
 x: 0,
 y: 0,
-
 speed: 256 // nopeus pikseleitä sekunnissa
 };
 
@@ -67,20 +66,10 @@ var reset = function () {
 
 	// Uusi vihollinen satunnaiseen paikkaan
 
-	enemy[0][0] = 32 + (Math.random() * (canvas.width - 64));
-	enemy[0][1] = 32 + (Math.random() * (canvas.height - 64));
-
-	
-	enemy[1][0] = 32 + (Math.random() * (canvas.width - 64));
-	enemy[1][1] = 32 + (Math.random() * (canvas.height - 64));
-
-
-	enemy[2][0] = 32 + (Math.random() * (canvas.width - 64));
-	enemy[2][1] = 32 + (Math.random() * (canvas.height - 64));
-
-	enemy[3][0] = 32 + (Math.random() * (canvas.width - 64));
-	enemy[3][1] = 32 + (Math.random() * (canvas.height - 64));
-
+	for (x = 0; x < 4; x++) {
+		enemy[x][0] = 32 + (Math.random() * (canvas.width - 64));
+		enemy[x][1] = 32 + (Math.random() * (canvas.height - 64));		
+	}
 }
 
 // Vaihda pelaajan paikkaan
@@ -112,6 +101,8 @@ var update = function (modifier) {
 }
 
 // Onko saatu kiinni?
+
+for (ene = 0; ene < 4; ene++) {
 if (
 		player.x <= (enemy[ene][0] + 32)
 		&& enemy[ene][0] <= (player.x + 32)
@@ -130,64 +121,7 @@ if (
 		}
 		reset();
 	}
-
-if (
-		player.x <= (enemy[1][0] + 32)
-		&& enemy[1][0] <= (player.x + 32)
-		&& player.y <= (enemy[1][1] + 32)
-		&& enemy[1][1] <= (player.y + 32)
-
-	) {
-		++kiinniotettuja;
-		if (kiinniotettuja >= 10)  {
-			if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
-			else window.location.reload(); 
-			
-			var then = Date.now();
-			reset();
-			main();
-		}
-		reset();
-	}
-
-if (
-		player.x <= (enemy[2][0] + 32)
-		&& enemy[2][0] <= (player.x + 32)
-		&& player.y <= (enemy[2][1] + 32)
-		&& enemy[2][1] <= (player.y + 32)
-
-	) {
-		++kiinniotettuja;
-		if (kiinniotettuja >= 10)  {
-			if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
-			else window.location.reload(); 
-			
-			var then = Date.now();
-			reset();
-			main();
-		}
-		reset();
-	}
-
-if (
-		player.x <= (enemy[3][0] + 32)
-		&& enemy[3][0] <= (player.x + 32)
-		&& player.y <= (enemy[3][1] + 32)
-		&& enemy[3][1] <= (player.y + 32)
-
-	) {
-		++kiinniotettuja;
-		if (kiinniotettuja >= 1000)  {
-			if(window.alert("Olet kerännyt tarpeeksi tuulimyllyjä, sinulla on tarpeeksi sähköä!")){}
-			else window.location.reload(); 
-			
-			var then = Date.now();
-			reset();
-			main();
-		}
-		reset();
-	}
-
+}
 
 };
 
@@ -220,44 +154,16 @@ var render = function () {
 
 var move = function () {
 
-	enemy[0][0] += 1
-	enemy[0][1] += 1
+	for (x = 0; x < 4; x++) {
 
+	enemy[x][0] += 1
+	enemy[x][1] += 1
 
-	enemy[1][0] += 1
-	enemy[1][1] += 1
-
-
-	enemy[2][0] += 1
-	enemy[2][1] += 1
-
-
-	enemy[3][0] += 1
-	enemy[3][1] += 1
-
-
-	if(enemy[0][1] < 5 ) {enemy[0][1]= 15; enemy[0][0] = 15}
-	if(enemy[0][1] > (canvas.height -40)) {enemy[0][1]= 15; enemy[0][0] = 15}
-	if(enemy[0][0] < 5 ) {enemy[0][1]= 15; enemy[0][0] = 15}
-	if(enemy[0][0] > (canvas.width -30) ) {enemy[0][1]= 15; enemy[0][0] = 15}
-
-
-	if(enemy[1][1] < 5 ) {enemy[1][1]= 30; enemy[1][0] = 30}
-	if(enemy[1][1] > (canvas.height -40)) {enemy[1][1]= 30; enemy[1][0] = 30}
-	if(enemy[1][0] < 5 ) {enemy[1][1]= 30; enemy[1][0] = 30}
-	if(enemy[1][0] > (canvas.width -30) ) {enemy[1][1]= 30; enemy[1][0] = 30}
-
-
-	if(enemy[2][1] < 5 ) {enemy[2][1]= 5; enemy[2][0] = 5}
-	if(enemy[2][1] > (canvas.height -40)) {enemy[2][1]= 5; enemy[2][0] = 5}
-	if(enemy[2][0] < 5 ) {enemy[2][1]= 5; enemy[2][0] = 5}
-	if(enemy[2][0] > (canvas.width -30) ) {enemy[2][1]= 5; enemy[2][0] = 5}
-
-
-	if(enemy[3][1] < 5 ) {enemy[3][1]= 5; enemy[3][0] = 55}
-	if(enemy[3][1] > (canvas.height -40)) {enemy[3][1]= 5; enemy[3][0] = 55}
-	if(enemy[3][0] < 5 ) {enemy[3][1]= 5; enemy[3][0] = 55}
-	if(enemy[3][0] > (canvas.width -30) ) {enemy[3][1]= 5; enemy[3][0] = 55}
+	if(enemy[x][1] < 5 ) {enemy[x][1]= 5*x; enemy[x][0] = 5*x}
+	if(enemy[x][1] > (canvas.height -40)) {enemy[x][1]= 5*x; enemy[x][0] = x*5}
+	if(enemy[x][0] < 5 ) {enemy[x][1]= 5*x; enemy[x][0] = 5*x}
+	if(enemy[x][0] > (canvas.width -30) ) {enemy[x][1]= 5*x; enemy[x][0] = x*5}
+	};
 
 }
 
@@ -274,7 +180,7 @@ var main = function () {
 	
 
 	// Kiertää koko ajan
-	setInterval(main, 100);
+	setInterval(main, 500);
 };
 
 
