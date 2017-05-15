@@ -159,10 +159,10 @@ var move = function () {
 	enemy[x][0] += 1
 	enemy[x][1] += 1
 
-	if(enemy[x][1] < 5 ) {enemy[x][1]= 5*x; enemy[x][0] = 5*x}
-	if(enemy[x][1] > (canvas.height -40)) {enemy[x][1]= 5*x; enemy[x][0] = x*5}
-	if(enemy[x][0] < 5 ) {enemy[x][1]= 5*x; enemy[x][0] = 5*x}
-	if(enemy[x][0] > (canvas.width -30) ) {enemy[x][1]= 5*x; enemy[x][0] = x*5}
+	if(enemy[x][1] < 5 ) {enemy[x][1]= 5; enemy[x][0] = 50*x}
+	if(enemy[x][1] > (canvas.height -40)) {enemy[x][1]= 5; enemy[x][0] = 50*x}
+	if(enemy[x][0] < 5 ) {enemy[x][1]= 5; enemy[x][0] = 50*x}
+	if(enemy[x][0] > (canvas.width -30) ) {enemy[x][1]= 5; enemy[x][0] = 50*x}
 	};
 
 }
